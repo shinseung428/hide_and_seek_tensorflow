@@ -43,6 +43,32 @@ def train(args, sess, model):
     train_imgs, train_boxes, train_labels, labels_dict, train_count = load_tr_data(args) 
     valid_imgs, valid_boxes, valid_labels, valid_count = load_val_data(args, labels_dict)    
 
+    zipped_data = zip(train_imgs, train_boxes, train_labels)
+    np.random.shuffle(zipped_data)
+    
+    new_imgs, new_boxes, new_labels = [], [], []
+    for img, box, label in zipped_data:
+        new_imgs.append(img)
+        new_boxes.append(box)
+        new_labels.append(label)
+    train_imgs = np.asarray(new_imgs)
+    train_boxes = np.asarray(new_boxes)
+    train_labels = np.asarray(new_labels)
+
+
+    zipped_data = zip(valid_imgs, valid_boxes, valid_labels)
+    np.random.shuffle(zipped_data)
+
+    new_imgs, new_boxes, new_labels = [], [], []
+    for img, box, label in zipped_data:
+        new_imgs.append(img)
+        new_boxes.append(box)
+        new_labels.append(label)
+    valid_imgs = np.asarray(new_imgs)
+    valid_boxes = np.asarray(new_boxes)
+    valid_labels = np.asarray(new_labels)
+
+
     print  "Training Count: %d Class Num: %d "%(train_count, train_labels.max()+1)
     
     batch_idxs = train_count // args.batch_size
