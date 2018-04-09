@@ -29,13 +29,13 @@ def train(args, sess, model):
 
     #summary init
     all_summary = tf.summary.merge([model.loss_sum,
-                                    model.train_img_sum])
+                                    model.train_img_sum,
+                                    model.classmap_sum])
     write_op = tf.summary.merge([model.acc_sum])
     writer = tf.summary.FileWriter(args.graph_path, sess.graph)
 
     writer_1 = tf.summary.FileWriter(args.graph_path+"train")
     writer_2 = tf.summary.FileWriter(args.graph_path+"valid")
-
 
 
     #Prepare data

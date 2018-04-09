@@ -23,7 +23,7 @@ def linear(input, output_size, name="linear"):
 		matrix = tf.get_variable("W", [shape[1], output_size], tf.float32, tf.random_normal_initializer(stddev=0.02))
 		bias = tf.get_variable("bias", [output_size], initializer=tf.constant_initializer(0.0))
 
-		return tf.matmul(input, matrix) + bias
+		return tf.matmul(input, matrix) + bias, matrix
 
 
 def deconv2d(input, out_shape, name="deconv2d"):

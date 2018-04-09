@@ -7,7 +7,7 @@ import cv2
 import csv
 
 def load_image(path):
-	return cv2.imread(path)
+	return cv2.resize(cv2.imread(path), (224,224))
 
 def load_tr_data(args):
 	print "Preparing Training Data..."
