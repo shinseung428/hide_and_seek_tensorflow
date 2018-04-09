@@ -75,23 +75,22 @@ def train(args, sess, model):
 
 
 
-            # acc_ = sess.run(write_op)
-            # writer_1.add_summary(acc_, global_step)
-            # writer_1.flush()
+            #acc_ = sess.run(write_op)
+            #writer_1.add_summary(acc_, global_step)
+            #writer_1.flush()
 
-            # val_acc_ = sess.run(write_op)
-            # writer_2.add_summary(val_acc_, global_step)
-            # writer_2.flush()
+            #val_acc_ = sess.run(write_op)
+            #writer_2.add_summary(val_acc_, global_step)
+            #writer_2.flush()
 
             print "Epoch [%d] Step [%d] Loss: [%.4f] Acc: [%.4f] Val: [%.4f]" % (epoch, step, loss, acc, val_acc)
             
-            input("t")
             if global_step%args.checkout_point == 0:
                 saver.save(sess, args.checkpoints_path + "/model-"+str(epoch), global_step=step)
                 print "Model saved at /model-" + str(epoch) + "-" + str(step)
                 
 
-            if step*args.batch_size > model.data_count:
+            if step*args.batch_size > train_count:
                 epoch += 1 
                 step = 0
                 saver.save(sess, args.checkpoints_path + "/model-"+str(epoch), global_step=step)

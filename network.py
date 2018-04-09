@@ -19,7 +19,7 @@ class network():
         self.val_acc_sum = tf.summary.scalar("val_acc", self.val_acc) 
         self.train_img_sum = tf.summary.image("input_img", self.train_imgs, max_outputs=10)
 
-        self.classmap_sum = tf.summary.image("classmap", self.classmap)
+        self.classmap_sum = tf.summary.image("classmap", self.classmap, max_outputs=10)
 
     #structure of the model
     def build_model(self):
@@ -37,11 +37,12 @@ class network():
 
         self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.pred_logits, labels=train_labels))
 
-        # self.pred_logits = tf.Print(self.pred_logits, [self.pred_logits], summarize=14951, message="pred\n")
         self.pred = tf.argmax(self.pred_logits, axis=1)
         gt = tf.argmax(train_labels, axis=1)
         correct_prediction = tf.equal(self.pred, gt)
-        self.acc = tf.reduce_mean(tf.cast(correct_prediction, dtype=tf.float32)) 
+        self.acc = tf.reduce_mean(tf.cast(correct_prediction, dtype=tf.float32))
+
+        #self.loss = tf.Print(self.loss, [self.pred_logits], message="pred:")
 
         #Validation Result
         self.val_logits, self.val_points = self.VGG16(self.val_imgs, name="VGG16", reuse=True)
@@ -57,9 +58,8 @@ class network():
         label_w = tf.reshape(label_w, [-1, 512, 1])
 
         classmap = tf.matmul(CAM_img, label_w)
-        self.classmap = tf.reshape(classmap, [-1, 224, 224])
+        self.classmap = tf.tile(tf.reshape(classmap, [-1, 224, 224, 1]), [1,1,1,3])
 
-        
 
 
     def VGG16(self, input, name="VGG16", reuse=False):
