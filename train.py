@@ -31,7 +31,7 @@ def train(args, sess, model):
     all_summary = tf.summary.merge([model.loss_sum,
                                     model.train_img_sum,
                                     model.classmap_sum])
-    write_op = tf.summary.merge([model.acc_sum])
+    write_op = tf.summary.merge([model.tr_acc_sum, model.val_acc_sum])
     writer = tf.summary.FileWriter(args.graph_path, sess.graph)
 
     writer_1 = tf.summary.FileWriter(args.graph_path+"train")
@@ -88,7 +88,8 @@ def train(args, sess, model):
             tr_batch = np.asarray(tr_batch)
             val_batch = np.asarray(val_batch)
 
-
+            if len(tr_img_batch) < args.batch_size or len(val_img_batch) < args.batch_size:
+                break
             #Update Network
             summary, loss, acc, val_acc, _ = sess.run([all_summary, model.loss, model.acc, model.val_acc, optimizer],
                                                        feed_dict={model.train_imgs:tr_batch,
@@ -101,13 +102,21 @@ def train(args, sess, model):
 
 
 
-            #acc_ = sess.run(write_op)
-            #writer_1.add_summary(acc_, global_step)
-            #writer_1.flush()
+            acc_ = sess.run(write_op, feed_dict={model.train_imgs:tr_batch,
+                                                 model.train_labels:tr_lab_batch,
+                                                 model.val_imgs:val_batch,
+                                                 model.val_labels:val_lab_batch
+                                                 })
+            writer_1.add_summary(acc_, global_step)
+            writer_1.flush()
 
-            #val_acc_ = sess.run(write_op)
-            #writer_2.add_summary(val_acc_, global_step)
-            #writer_2.flush()
+            val_acc_ = sess.run(write_op, feed_dict={model.train_imgs:tr_batch,
+                                                 model.train_labels:tr_lab_batch,
+                                                 model.val_imgs:val_batch,
+                                                 model.val_labels:val_lab_batch
+                                                 })
+            writer_2.add_summary(val_acc_, global_step)
+            writer_2.flush()
 
             print "Epoch [%d] Step [%d] Loss: [%.4f] Acc: [%.4f] Val: [%.4f]" % (epoch, step, loss, acc, val_acc)
             

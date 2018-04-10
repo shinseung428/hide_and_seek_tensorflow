@@ -15,7 +15,7 @@ class network():
 
         #summary
         self.loss_sum = tf.summary.scalar("loss", self.loss) 
-        self.acc_sum = tf.summary.scalar("acc", self.acc) 
+        self.tr_acc_sum = tf.summary.scalar("acc", self.acc) 
         self.val_acc_sum = tf.summary.scalar("val_acc", self.val_acc) 
         self.train_img_sum = tf.summary.image("input_img", self.train_imgs, max_outputs=10)
 
@@ -37,16 +37,17 @@ class network():
 
         self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.pred_logits, labels=train_labels))
 
-        self.pred = tf.argmax(self.pred_logits, axis=1)
+        self.pred = tf.argmax(self.end_points, axis=1)
         gt = tf.argmax(train_labels, axis=1)
         correct_prediction = tf.equal(self.pred, gt)
         self.acc = tf.reduce_mean(tf.cast(correct_prediction, dtype=tf.float32))
 
-        #self.loss = tf.Print(self.loss, [self.pred_logits], message="pred:")
+        #self.acc = tf.Print(self.acc, [gt], message="\ngt:", summarize=10)
+        #self.acc = tf.Print(self.acc, [self.pred], message="\npred:", summarize=10)
 
         #Validation Result
         self.val_logits, self.val_points = self.VGG16(self.val_imgs, name="VGG16", reuse=True)
-        val_pred = tf.argmax(self.val_logits, axis=1)
+        val_pred = tf.argmax(self.val_points, axis=1)
         val_gt = tf.argmax(val_labels, axis=1)
         val_prediction = tf.equal(val_pred, val_gt)
         self.val_acc = tf.reduce_mean(tf.cast(val_prediction, dtype=tf.float32)) 
