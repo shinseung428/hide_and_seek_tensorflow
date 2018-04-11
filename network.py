@@ -10,7 +10,8 @@ class network():
         self.input_height = args.input_height
         self.input_width = args.input_width
         self.input_channel = args.input_channel
-
+        self.out_class = args.out_class
+        
         self.build_model()
 
         #summary
@@ -25,13 +26,13 @@ class network():
     def build_model(self):
         self.train_imgs = tf.placeholder(tf.float32, [self.batch_size, self.input_height, self.input_width, self.input_channel])
         self.train_labels = tf.placeholder(tf.int32, [self.batch_size,])
-        train_labels = tf.one_hot(self.train_labels, 200)
+        train_labels = tf.one_hot(self.train_labels, self.out_class)
 
         self.val_imgs = tf.placeholder(tf.float32, [self.batch_size, self.input_height, self.input_width, self.input_channel])
         self.val_labels = tf.placeholder(tf.int32, [self.batch_size,])
-        val_labels = tf.one_hot(self.val_labels, 200)
+        val_labels = tf.one_hot(self.val_labels, self.out_class)
 
-        self.pred_logits, self.end_points = self.VGG16(self.train_imgs, name="VGG16")
+        self.pred_logits, self.end_points = self.AlexNet(self.train_imgs, name="AlexNet")
 
         self.vars = tf.trainable_variables()
 
@@ -46,7 +47,7 @@ class network():
         #self.acc = tf.Print(self.acc, [self.pred], message="\npred:", summarize=10)
 
         #Validation Result
-        self.val_logits, self.val_points = self.VGG16(self.val_imgs, name="VGG16", reuse=True)
+        self.val_logits, self.val_points = self.AlexNet(self.val_imgs, name="AlexNet", reuse=True)
         val_pred = tf.argmax(self.val_points, axis=1)
         val_gt = tf.argmax(val_labels, axis=1)
         val_prediction = tf.equal(val_pred, val_gt)
@@ -63,51 +64,40 @@ class network():
 
 
 
-    def VGG16(self, input, name="VGG16", reuse=False):
+    def AlexNet(self, input, name="VGG16", reuse=False):
       with tf.variable_scope(name, reuse=reuse) as scope:
-        net = conv2d(input, 3, 64, 1, 1, padding='VALID', name='conv0')
+        net = conv2d(input, 3, 96, 11, 4, padding='SAME', name='conv1')
         net = tf.nn.relu(net)
-        net = conv2d(net, 64, 64, 1, 1, padding='VALID', name='conv1')
-        net = tf.nn.relu(net)
-        net = max_pool(net, 2, 2, padding='VALID', name='pool0')
-
-        net = conv2d(net, 64, 128, 1, 1, padding='VALID', name='conv2')
-        net = tf.nn.relu(net)
-        net = conv2d(net, 128, 128, 1, 1, padding='VALID', name='conv3')
-        net = tf.nn.relu(net)
-        net = max_pool(net, 2, 2, padding='VALID', name='pool1')
-
-        net = conv2d(net, 128, 256, 1, 1, padding='VALID', name='conv4')
-        net = tf.nn.relu(net)
-        net = conv2d(net, 256, 256, 1, 1, padding='VALID', name='conv5')
-        net = tf.nn.relu(net)
-        net = conv2d(net, 256, 256, 1, 1, padding='VALID', name='conv6')
-        net = tf.nn.relu(net)
-        net = max_pool(net, 2, 2, padding='VALID', name='pool2')
+        net = tf.nn.local_response_normalization(net, depth_radius=5.0, bias=2.0, alpha=1e-4, beta=0.75)
+        net = max_pool(net, 3, 2, padding='VALID', name='pool1')
         
-        net = conv2d(net, 256, 512, 1, 1, padding='VALID', name='conv7')
+        net = conv2d(net, 96, 256, 5, 1, padding='SAME', name='conv2')
         net = tf.nn.relu(net)
-        net = conv2d(net, 512, 512, 1, 1, padding='VALID', name='conv8')
-        net = tf.nn.relu(net)
-        net = conv2d(net, 512, 512, 1, 1, padding='VALID', name='conv9')
-        net = tf.nn.relu(net)
-        net = max_pool(net, 2, 2, padding='VALID', name='pool3')
-
-        net = conv2d(net, 512, 512, 1, 1, padding='VALID', name='conv10')
-        net = tf.nn.relu(net)
-        net = conv2d(net, 512, 512, 1, 1, padding='VALID', name='conv11')
-        net = tf.nn.relu(net)
-        net = conv2d(net, 512, 512, 1, 1, padding='VALID', name='conv12')
-        net = tf.nn.relu(net)
-        net = conv2d(net, 512, 1024, 1, 1, padding='VALID', name='conv13')
+        net = tf.nn.local_response_normalization(net, depth_radius=5.0, bias=2.0, alpha=1e-4, beta=0.75)
+        net = max_pool(net, 3, 2, padding='VALID', name='pool2')
         
-        #net = max_pool(net, 2, 2, padding='VALID', name='pool4')        
+        net = conv2d(net, 256, 384, 3, 1, padding='SAME', name='conv3')
+        net = tf.nn.relu(net)
+
+        net = conv2d(net, 384, 384, 3, 1, padding='SAME', name='conv4')
+        net = tf.nn.relu(net)
+
+        net = conv2d(net, 384, 256, 3, 1, padding='SAME', name='conv5')
+        net = tf.nn.relu(net)
+        net = max_pool(net, 3, 2, padding='VALID', name='pool3')
+        
+        #extra conv layers
+        net = conv2d(net, 256, 512, 3, 1, padding='SAME', name='conv6')
+        net = tf.nn.relu(net)
+        net = conv2d(net, 512, 1024, 3, 1, padding='SAME', name='conv7')
+        net = tf.nn.relu(net)
 
         self.last_layer = net
+        #Global Average Pooling
         gap = tf.reduce_mean(net, axis=[1,2])
         
         flattened = tf.reshape(gap, (self.batch_size, -1))
-        net, self.weights = linear(flattened, 200, name='linear')
+        net, self.weights = linear(flattened, self.out_class, name='linear')
 
         return net, tf.nn.softmax(net)
 
