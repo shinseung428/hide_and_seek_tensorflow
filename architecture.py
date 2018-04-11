@@ -20,7 +20,7 @@ def linear(input, output_size, name="linear"):
 	shape = input.get_shape().as_list()
 
 	with tf.variable_scope(name) as scope:
-		matrix = tf.get_variable("W", [shape[1], output_size], tf.float32, tf.random_normal_initializer(stddev=0.02))
+		matrix = tf.get_variable("W", [shape[1], output_size], tf.float32, tf.contrib.layers.xavier_initializer())
 		bias = tf.get_variable("bias", [output_size], initializer=tf.constant_initializer(0.0))
 
 		return tf.matmul(input, matrix) + bias, matrix
@@ -42,7 +42,7 @@ def deconv2d(input, out_shape, name="deconv2d"):
 def conv2d(input, input_filters, output_filters, kernel, strides, padding = 'SAME', mode='CONSTANT', name='conv'):
     with tf.variable_scope(name) as scope:
         shape = [kernel, kernel, input_filters, output_filters]
-        weight = tf.get_variable("weights", shape, initializer=tf.truncated_normal_initializer(stddev=0.02))
+        weight = tf.get_variable("weights", shape, initializer=tf.contrib.layers.xavier_initializer())
         conv = tf.nn.conv2d(input, weight, strides=[1, strides, strides, 1], padding='SAME', name=name)
 
         return conv
