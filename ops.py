@@ -39,7 +39,7 @@ def load_tr_data(args):
 	return np.asarray(images), np.asarray(boxes), np.asarray(labels), labels_dict, len(labels)
 
 def load_val_data(args, labels_dict):
-	print "Preparing Validation Data..."
+	print("Preparing Validation Data...")
 
 	path = os.path.join(args.data, "val")
 	
