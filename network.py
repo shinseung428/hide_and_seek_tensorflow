@@ -54,9 +54,9 @@ class network():
 
 
         self.CAM_image = tf.image.resize_bilinear(self.last_layer, [224, 224])
-        CAM_img = tf.reshape(self.CAM_image, [-1, 224*224, 512])
+        CAM_img = tf.reshape(self.CAM_image, [-1, 224*224, 1024])
         label_w = tf.gather(tf.transpose(self.weights), self.pred)
-        label_w = tf.reshape(label_w, [-1, 512, 1])
+        label_w = tf.reshape(label_w, [-1, 1024, 1])
 
         classmap = tf.matmul(CAM_img, label_w)
         self.classmap = tf.tile(tf.reshape(classmap, [-1, 224, 224, 1]), [1,1,1,3])
@@ -66,27 +66,42 @@ class network():
     def VGG16(self, input, name="VGG16", reuse=False):
       with tf.variable_scope(name, reuse=reuse) as scope:
         net = conv2d(input, 3, 64, 1, 1, padding='VALID', name='conv0')
+        net = tf.nn.relu(net)
         net = conv2d(net, 64, 64, 1, 1, padding='VALID', name='conv1')
+        net = tf.nn.relu(net)
         net = max_pool(net, 2, 2, padding='VALID', name='pool0')
 
         net = conv2d(net, 64, 128, 1, 1, padding='VALID', name='conv2')
+        net = tf.nn.relu(net)
         net = conv2d(net, 128, 128, 1, 1, padding='VALID', name='conv3')
+        net = tf.nn.relu(net)
         net = max_pool(net, 2, 2, padding='VALID', name='pool1')
 
         net = conv2d(net, 128, 256, 1, 1, padding='VALID', name='conv4')
+        net = tf.nn.relu(net)
         net = conv2d(net, 256, 256, 1, 1, padding='VALID', name='conv5')
+        net = tf.nn.relu(net)
         net = conv2d(net, 256, 256, 1, 1, padding='VALID', name='conv6')
+        net = tf.nn.relu(net)
         net = max_pool(net, 2, 2, padding='VALID', name='pool2')
         
         net = conv2d(net, 256, 512, 1, 1, padding='VALID', name='conv7')
+        net = tf.nn.relu(net)
         net = conv2d(net, 512, 512, 1, 1, padding='VALID', name='conv8')
+        net = tf.nn.relu(net)
         net = conv2d(net, 512, 512, 1, 1, padding='VALID', name='conv9')
+        net = tf.nn.relu(net)
         net = max_pool(net, 2, 2, padding='VALID', name='pool3')
 
         net = conv2d(net, 512, 512, 1, 1, padding='VALID', name='conv10')
+        net = tf.nn.relu(net)
         net = conv2d(net, 512, 512, 1, 1, padding='VALID', name='conv11')
+        net = tf.nn.relu(net)
         net = conv2d(net, 512, 512, 1, 1, padding='VALID', name='conv12')
-        net = max_pool(net, 2, 2, padding='VALID', name='pool4')        
+        net = tf.nn.relu(net)
+        net = conv2d(net, 512, 1024, 1, 1, padding='VALID', name='conv13')
+        
+        #net = max_pool(net, 2, 2, padding='VALID', name='pool4')        
 
         self.last_layer = net
         gap = tf.reduce_mean(net, axis=[1,2])

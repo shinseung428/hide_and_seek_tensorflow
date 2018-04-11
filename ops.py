@@ -9,7 +9,7 @@ import csv
 def load_image(path):
 	img = cv2.resize(cv2.imread(path), (224,224))
 	img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-	return img
+	return img / 127.5 - 1
 
 def load_tr_data(args):
 	print "Preparing Training Data..."
