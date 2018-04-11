@@ -54,13 +54,13 @@ class network():
         self.val_acc = tf.reduce_mean(tf.cast(val_prediction, dtype=tf.float32)) 
 
 
-        self.CAM_image = tf.image.resize_bilinear(self.last_layer, [224, 224])
-        CAM_img = tf.reshape(self.CAM_image, [-1, 224*224, 1024])
+        self.CAM_image = tf.image.resize_bilinear(self.last_layer, [self.input_height, self.input_width])
+        CAM_img = tf.reshape(self.CAM_image, [-1, self.input_height*self.input_width, 1024])
         label_w = tf.gather(tf.transpose(self.weights), self.pred)
         label_w = tf.reshape(label_w, [-1, 1024, 1])
 
         classmap = tf.matmul(CAM_img, label_w)
-        self.classmap = tf.tile(tf.reshape(classmap, [-1, 224, 224, 1]), [1,1,1,3])
+        self.classmap = tf.reshape(classmap, [-1, self.input_height, self.input_width, 1])
 
 
 
