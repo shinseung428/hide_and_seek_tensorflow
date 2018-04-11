@@ -61,7 +61,12 @@ class network():
 
         classmap = tf.matmul(CAM_img, label_w)
         self.classmap = tf.reshape(classmap, [-1, self.input_height, self.input_width, 1])
+        
+        colorized = []
+        for idx in range(self.batch_size):
+            colorized.append(colorize(self.classmap[idx]))
 
+        self.colorized_classmap = tf.convert_to_tensor(colorized)
 
 
     def AlexNet(self, input, name="VGG16", reuse=False):
