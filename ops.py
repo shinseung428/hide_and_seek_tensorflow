@@ -3,14 +3,16 @@ from glob import glob
 import os
 import tensorflow as tf
 import numpy as np
-import cv2 
+import scipy.misc
+import matplotlib.pyplot as plt
 
 #def class_activation_map(classmap, image):
 
 def load_image(path, args):
-	img = cv2.resize(cv2.imread(path), (args.input_width,args.input_height))
-	img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-	return img / 127.5 - 1
+	image = scipy.misc.imread(path, mode='RGB')
+	image = scipy.misc.imresize(image, (args.input_width, args.input_height))
+
+	return image / 127.5 - 1
 
 def load_tr_data(args):
 	print "Preparing Training Data..."
@@ -34,7 +36,7 @@ def load_tr_data(args):
 			name = line[0]
 			box = line[1:]
 			img_path = os.path.join(folder+"/images", name)
-			# img = cv2.imread(img_path)
+			
 			images.append(img_path)
 			boxes.append(box)
 			labels.append(idx)
@@ -61,7 +63,6 @@ def load_val_data(args, labels_dict):
 		box = line[1:]
 		img_path = os.path.join(path+"/images", name)
 
-		# img = cv2.imread(img_path)
 		images.append(img_path)
 		boxes.append(box)
 		labels.append(labels_dict[line[1]])
