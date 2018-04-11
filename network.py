@@ -20,7 +20,7 @@ class network():
         self.val_acc_sum = tf.summary.scalar("val_acc", self.val_acc) 
         self.train_img_sum = tf.summary.image("input_img", self.train_imgs, max_outputs=10)
 
-        self.classmap_sum = tf.summary.image("classmap", self.classmap, max_outputs=10)
+        self.classmap_sum = tf.summary.image("classmap", self.colorized_classmap, max_outputs=10)
 
     #structure of the model
     def build_model(self):

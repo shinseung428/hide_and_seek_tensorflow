@@ -9,7 +9,7 @@ import matplotlib
 import matplotlib.cm
 
 
-def colorize(value, vmin=None, vmax=None, cmap=None):
+def colorize(value, vmin=None, vmax=None, cmap='plasma'):
 	"""
 	A utility function for TensorFlow that maps a grayscale image to a matplotlib
 	colormap for use with TensorBoard image summaries.
@@ -59,7 +59,7 @@ def load_image(path, args):
 	image = scipy.misc.imread(path, mode='RGB')
 	image = scipy.misc.imresize(image, (args.input_width, args.input_height))
 
-	return image / 127.5 - 1
+	return image / 255.0
 
 def load_tr_data(args):
 	print "Preparing Training Data..."
