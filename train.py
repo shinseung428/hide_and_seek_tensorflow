@@ -17,7 +17,7 @@ def train(args, sess, model):
         last_ckpt = tf.train.latest_checkpoint(args.checkpoints_path)
         saver.restore(sess, last_ckpt)
         ckpt_name = str(last_ckpt)
-        print "Loaded model file from " + ckpt_name
+        print("Loaded model file from " + ckpt_name)
         ckpt_numbers = ckpt_name.split('-')
         epoch = int(ckpt_numbers[-2])
         step = global_step = int(ckpt_numbers[-1])
@@ -69,7 +69,7 @@ def train(args, sess, model):
     valid_labels = np.asarray(new_labels)
 
 
-    print  "Training Count: %d Class Num: %d "%(train_count, train_labels.max()+1)
+    print("Training Count: %d Class Num: %d "%(train_count, train_labels.max()+1))
     
     batch_idxs = train_count // args.batch_size
     #training starts here
@@ -118,18 +118,18 @@ def train(args, sess, model):
             writer_2.add_summary(val_acc_, global_step)
             writer_2.flush()
 
-            print "Epoch [%d] Step [%d] Loss: [%.4f] Acc: [%.4f] Val: [%.4f]" % (epoch, step, loss, acc, val_acc)
+            print("Epoch [%d] Step [%d] Loss: [%.4f] Acc: [%.4f] Val: [%.4f]" % (epoch, step, loss, acc, val_acc))
             
             if global_step%args.checkout_point == 0:
                 saver.save(sess, args.checkpoints_path + "/model-"+str(epoch), global_step=step)
-                print "Model saved at /model-" + str(epoch) + "-" + str(step)
+                print("Model saved at /model-" + str(epoch) + "-" + str(step))
                 
 
             if step*args.batch_size > train_count:
                 epoch += 1 
                 step = 0
                 saver.save(sess, args.checkpoints_path + "/model-"+str(epoch), global_step=step)
-                print "Model saved at /model-" + str(epoch) + "-" + str(step)
+                print("Model saved at /model-" + str(epoch) + "-" + str(step))
                 
             step += 1
             global_step += 1
@@ -145,7 +145,7 @@ def main(_):
     with tf.Session(config=run_config) as sess:
         model = network(args)
 
-        print 'Start Training...'
+        print('Start Training...')
         train(args, sess, model)
 
 main(args)
