@@ -60,7 +60,7 @@ def load_image(path, args, is_training=True):
 
 	image = scipy.misc.imread(path, mode='RGB')
 	image = scipy.misc.imresize(image, (args.input_width, args.input_height))
-
+	image = image / 255.0
 	
 	if is_training:
 		# use 13x13 grid
@@ -72,7 +72,7 @@ def load_image(path, args, is_training=True):
 				if prob >= 0.5:
 					image[x*grid:x*grid+grid,y*grid:y*grid+grid,:] = mean
 
-	return image / 255.0
+	return image 
 
 def load_tr_data(args):
 	print "Preparing Training Data..."
