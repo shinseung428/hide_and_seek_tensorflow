@@ -29,13 +29,13 @@ def train(args, sess, model):
 
     #summary init
     all_summary = tf.summary.merge([model.loss_sum,
+                                    model.tr_acc_sum, 
+                                    model.val_acc_sum,
                                     model.train_img_sum,
-                                    model.classmap_sum])
-    write_op = tf.summary.merge([model.tr_acc_sum, model.val_acc_sum])
+                                    model.classmap_sum,
+                                    model.val_img_sum,
+                                    ])
     writer = tf.summary.FileWriter(args.graph_path, sess.graph)
-
-    writer_1 = tf.summary.FileWriter(args.graph_path+"train")
-    writer_2 = tf.summary.FileWriter(args.graph_path+"valid")
 
 
     #Prepare data
@@ -83,8 +83,8 @@ def train(args, sess, model):
             val_lab_batch = valid_labels[args.batch_size*idx:args.batch_size*idx+args.batch_size]
             val_box_batch = valid_boxes[args.batch_size*idx:args.batch_size*idx+args.batch_size]
 
-            tr_batch = [load_image(path, args) for path in tr_img_batch]
-            val_batch = [load_image(path, args) for path in val_img_batch]
+            tr_batch = [load_image(path, args, is_training=True) for path in tr_img_batch]
+            val_batch = [load_image(path, args, is_training=False) for path in val_img_batch]
             tr_batch = np.asarray(tr_batch)
             val_batch = np.asarray(val_batch)
 
@@ -101,22 +101,6 @@ def train(args, sess, model):
             writer.add_summary(summary, global_step)
 
 
-
-            acc_ = sess.run(write_op, feed_dict={model.train_imgs:tr_batch,
-                                                 model.train_labels:tr_lab_batch,
-                                                 model.val_imgs:val_batch,
-                                                 model.val_labels:val_lab_batch
-                                                 })
-            writer_1.add_summary(acc_, global_step)
-            writer_1.flush()
-
-            val_acc_ = sess.run(write_op, feed_dict={model.train_imgs:tr_batch,
-                                                 model.train_labels:tr_lab_batch,
-                                                 model.val_imgs:val_batch,
-                                                 model.val_labels:val_lab_batch
-                                                 })
-            writer_2.add_summary(val_acc_, global_step)
-            writer_2.flush()
 
             print("Epoch [%d] Step [%d] Loss: [%.4f] Acc: [%.4f] Val: [%.4f]" % (epoch, step, loss, acc, val_acc))
             

@@ -54,22 +54,23 @@ def colorize(value, vmin=None, vmax=None, cmap='plasma'):
 	return value
 
 
-def load_image(path, args):
+def load_image(path, args, is_training=True):
 	# mean of the pixel values in the whole dataset
 	mean = 0.442872096287
 
 	image = scipy.misc.imread(path, mode='RGB')
 	image = scipy.misc.imresize(image, (args.input_width, args.input_height))
 
-	# add code to randomly block patches
-	# use 13x13 grid
-	grid = 13
-	breaks = args.input_width // grid + 1
-	for x in range(breaks):
-		for y in range(breaks):
-			prob = np.random.rand()
-			if prob >= 0.5:
-				image[x*grid:x*grid+grid,y*grid:y*grid+grid,:] = mean
+	
+	if is_training:
+		# use 13x13 grid
+		grid = 13
+		breaks = args.input_width // grid + 1
+		for x in range(breaks):
+			for y in range(breaks):
+				prob = np.random.rand()
+				if prob >= 0.5:
+					image[x*grid:x*grid+grid,y*grid:y*grid+grid,:] = mean
 
 	return image / 255.0
 
