@@ -120,8 +120,7 @@ class network():
         net = conv2d(net, 512, 1024, 3, 1, padding='SAME', name='conv7')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn7")
-        print net
-        input("T")
+        
         self.last_layer = net
         #Global Average Pooling
         gap = tf.reduce_mean(net, axis=[1,2])
