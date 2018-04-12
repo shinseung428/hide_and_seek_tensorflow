@@ -119,6 +119,9 @@ def train(args, sess, model):
             step += 1
             global_step += 1
 
+        #update learning rate after every epoch
+        
+
       
     print("Done.")
 
