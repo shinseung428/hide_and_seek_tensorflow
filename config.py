@@ -27,7 +27,7 @@ parser.add_argument('--epochs', dest='epochs', default=55, help='total number of
 parser.add_argument('--batch_size', dest='batch_size', default=32, help='batch size')
 parser.add_argument('--checkout_point', dest='checkout_point', default=3000, help='checkout point')
 
-parser.add_argument('--learning_rate', dest='learning_rate', default=0.01, help='learning rate of the optimizer')
+parser.add_argument('--learning_rate', dest='learning_rate', default=0.0002, help='learning rate of the optimizer')
 parser.add_argument('--momentum', dest='momentum', default=0.5, help='momentum of the optimizer')
 
 
