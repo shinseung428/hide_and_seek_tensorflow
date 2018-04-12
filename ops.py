@@ -54,10 +54,22 @@ def colorize(value, vmin=None, vmax=None, cmap='plasma'):
 	return value
 
 
-
 def load_image(path, args):
+	# mean of the pixel values in the whole dataset
+	mean = 0.442872096287
+
 	image = scipy.misc.imread(path, mode='RGB')
 	image = scipy.misc.imresize(image, (args.input_width, args.input_height))
+
+	# add code to randomly block patches
+	# use 13x13 grid
+	grid = 13
+	breaks = args.input_width // grid
+	for x in range(breaks):
+		for y in range(breaks):
+			prob = np.random.rand()
+			if prob >= 0.5:
+				image[x*grid:x*grid+grid,y*grid:y*grid+grid,:] = mean
 
 	return image / 255.0
 
@@ -67,6 +79,7 @@ def load_tr_data(args):
 	folders = os.path.join(args.data, "train")
 	folders = glob(folders+"/*")
 	
+	# mean = 0
 	images = []
 	boxes = []
 	labels = []
@@ -87,7 +100,12 @@ def load_tr_data(args):
 			images.append(img_path)
 			boxes.append(box)
 			labels.append(idx)
-
+			#img = load_image(img_path, args)
+			#mean += np.sum(img)
+			
+	
+	# print 2176804927.67/(len(labels) * args.input_height * args.input_height * args.input_channel)
+	
 	return images, boxes, labels, labels_dict, len(labels)
 
 def load_val_data(args, labels_dict):
