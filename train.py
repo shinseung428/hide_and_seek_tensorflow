@@ -32,8 +32,9 @@ def train(args, sess, model):
                                     model.tr_acc_sum, 
                                     model.val_acc_sum,
                                     model.train_img_sum,
-                                    model.classmap_sum,
+                                    model.tr_classmap_sum,
                                     model.val_img_sum,
+                                    model.val_classmap_sum,
                                     ])
     writer = tf.summary.FileWriter(args.graph_path, sess.graph)
 

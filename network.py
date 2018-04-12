@@ -21,8 +21,8 @@ class network():
         self.train_img_sum = tf.summary.image("input_img", self.train_imgs, max_outputs=5)
         self.val_img_sum = tf.summary.image("val_img", self.val_imgs, max_outputs=5)
 
-        self.classmap_sum = tf.summary.image("val_classmap", self.colorized_classmap, max_outputs=5)
-        # self.classmap_sum = tf.summary.image("val_classmap", self.colorized_classmap, max_outputs=10)
+        self.tr_classmap_sum = tf.summary.image("tr_classmap", self.tr_colorized_classmap, max_outputs=5)
+        self.val_classmap_sum = tf.summary.image("val_classmap", self.val_colorized_classmap, max_outputs=10)
 
     #structure of the model
     def build_model(self):
@@ -49,26 +49,41 @@ class network():
         #self.acc = tf.Print(self.acc, [self.pred], message="\npred:", summarize=10)
 
         #Validation Result
-        self.val_logits, self.val_points = self.AlexNet(self.val_imgs, name="AlexNet", reuse=True)
-        val_pred = tf.argmax(self.val_points, axis=1)
+        val_logits, val_points = self.AlexNet(self.val_imgs, name="AlexNet", reuse=True)
+        val_pred = tf.argmax(val_points, axis=1)
         val_gt = tf.argmax(val_labels, axis=1)
         val_prediction = tf.equal(val_pred, val_gt)
         self.val_acc = tf.reduce_mean(tf.cast(val_prediction, dtype=tf.float32)) 
 
-
-        self.CAM_image = tf.image.resize_bilinear(self.last_layer, [self.input_height, self.input_width])
-        CAM_img = tf.reshape(self.CAM_image, [-1, self.input_height*self.input_width, 1024])
+        #Training Classmap
+        CAM_image = tf.image.resize_bilinear(self.last_layer, [self.input_height, self.input_width])
+        CAM_img = tf.reshape(CAM_image, [-1, self.input_height*self.input_width, 1024])
         label_w = tf.gather(tf.transpose(self.weights), self.pred)
         label_w = tf.reshape(label_w, [-1, 1024, 1])
 
         classmap = tf.matmul(CAM_img, label_w)
-        self.classmap = tf.reshape(classmap, [-1, self.input_height, self.input_width, 1])
+        classmap = tf.reshape(classmap, [-1, self.input_height, self.input_width, 1])
         
         colorized = []
         for idx in range(self.batch_size):
-            colorized.append(colorize(self.classmap[idx]))
+            colorized.append(colorize(classmap[idx]))
 
-        self.colorized_classmap = tf.convert_to_tensor(colorized)
+        self.tr_colorized_classmap = tf.convert_to_tensor(colorized)
+
+        #Validation Classmap
+        CAM_image = tf.image.resize_bilinear(self.last_layer, [self.input_height, self.input_width])
+        CAM_img = tf.reshape(CAM_image, [-1, self.input_height*self.input_width, 1024])
+        label_w = tf.gather(tf.transpose(self.weights), val_pred)
+        label_w = tf.reshape(label_w, [-1, 1024, 1])
+
+        classmap = tf.matmul(CAM_img, label_w)
+        classmap = tf.reshape(classmap, [-1, self.input_height, self.input_width, 1])
+        
+        colorized = []
+        for idx in range(self.batch_size):
+            colorized.append(colorize(classmap[idx]))
+
+        self.val_colorized_classmap = tf.convert_to_tensor(colorized)        
 
 
     def AlexNet(self, input, name="VGG16", reuse=False):
