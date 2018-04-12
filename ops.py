@@ -64,7 +64,7 @@ def load_image(path, args):
 	# add code to randomly block patches
 	# use 13x13 grid
 	grid = 13
-	breaks = args.input_width // grid
+	breaks = args.input_width // grid + 1
 	for x in range(breaks):
 		for y in range(breaks):
 			prob = np.random.rand()
