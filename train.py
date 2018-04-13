@@ -7,7 +7,7 @@ def train(args, sess, model):
     #optimizers
     optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer").minimize(model.loss, var_list=model.vars)
 
-    epoch = 0
+    start_epoch = 0
     step = 0
     global_step = 0
 
@@ -19,7 +19,7 @@ def train(args, sess, model):
         ckpt_name = str(last_ckpt)
         print("Loaded model file from " + ckpt_name)
         ckpt_numbers = ckpt_name.split('-')
-        epoch = int(ckpt_numbers[-2])
+        start_epoch = int(ckpt_numbers[-2])
         step = global_step = int(ckpt_numbers[-1])
         tf.local_variables_initializer().run()
     else:
@@ -74,7 +74,7 @@ def train(args, sess, model):
     
     batch_idxs = train_count // args.batch_size
     #training starts here
-    for epoch in range(0, args.epochs):
+    for epoch in range(start_epoch, args.epochs):
         for idx in range(0, batch_idxs):
             tr_img_batch = train_imgs[args.batch_size*idx:args.batch_size*idx+args.batch_size]
             tr_lab_batch = train_labels[args.batch_size*idx:args.batch_size*idx+args.batch_size]
@@ -120,7 +120,7 @@ def train(args, sess, model):
             global_step += 1
 
         #update learning rate after every epoch
-        
+
 
       
     print("Done.")
