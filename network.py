@@ -183,7 +183,7 @@ class network():
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn9")
 
-        net = conv2d(net, 512, 512, 3, 1, padding='SAME', name='conv10')
+        net = conv2d(net, 512, 1024, 3, 1, padding='SAME', name='conv10')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn10")
 
