@@ -62,9 +62,20 @@ def load_image(path, args, is_training=True):
 	image = scipy.misc.imresize(image, (args.input_width, args.input_height))
 	image = image / 255.0
 	
-	#probably add data augmentation before randomly blocking image patches
-
+	
 	if is_training:
+		#probably add data augmentation before randomly blocking image patches
+		aug = np.random.choice([1,2,3], 1)[0]
+		prob = np.random.rand()
+		if prob > 0.5 and aug == 1:
+			image = np.flip(image, 1)
+		elif prob > 0.5 and aug == 2:
+			image = scipy.ndimage.interpolation.rotate(image, 30, )
+		elif prob > 0.5 and aug == 3:
+			image = scipy.ndimage.interpolation.zoom(image, 1.5, order=0)
+			image = scipy.misc.imresize(image, (args.input_width, args.input_height))
+
+
 		# use 13x13 grid
 		# grid = np.random.randint(10, 15)
 		grid = np.random.choice([8,13,16], 1)[0]
