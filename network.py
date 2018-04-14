@@ -12,7 +12,7 @@ class network():
         self.input_channel = args.input_channel
         self.out_class = args.out_class
         
-        self.beta = 0.001
+        self.beta = 0.0001
 
         self.build_model()
 
