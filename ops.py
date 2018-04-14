@@ -61,7 +61,6 @@ def load_image(path, args, is_training=True):
 
 	image = scipy.misc.imread(path, mode='RGB')
 	image = scipy.misc.imresize(image, (args.input_width, args.input_height))
-	image = image / 255.0
 	
 	
 	if is_training:
@@ -77,7 +76,7 @@ def load_image(path, args, is_training=True):
 			image = scipy.ndimage.interpolation.zoom(image, (1.5,1.5,1.0))
 			image = scipy.misc.imresize(image, (args.input_width, args.input_height))
 
-
+		image = image / 255.0
 		# use 13x13 grid
 		# grid = np.random.randint(10, 15)
 		grid = np.random.choice([8,13,16], 1)[0]
@@ -88,6 +87,8 @@ def load_image(path, args, is_training=True):
 				prob = np.random.rand()
 				if prob >= 0.5:
 					image[x*grid:x*grid+grid,y*grid:y*grid+grid,:] = mean
+	else:
+		image = image / 255.0
 
 	return image 
 
