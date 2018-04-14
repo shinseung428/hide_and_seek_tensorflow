@@ -110,9 +110,9 @@ def train(args, sess, model):
             step += 1
             global_step += 1
 
-            if global_step%args.checkout_point == 0:
-                saver.save(sess, args.checkpoints_path + "/model-"+str(epoch), global_step=step)
-                print("Model saved at /model-" + str(epoch) + "-" + str(step))
+            # if global_step%args.checkout_point == 0:
+            #     saver.save(sess, args.checkpoints_path + "/model-"+str(epoch), global_step=step)
+            #     print("Model saved at /model-" + str(epoch) + "-" + str(step))
                 
 
         
