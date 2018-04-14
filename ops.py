@@ -64,8 +64,6 @@ def load_image(path, args, is_training=True):
 	
 	#probably add data augmentation before randomly blocking image patches
 
-
-
 	if is_training:
 		# use 13x13 grid
 		# grid = np.random.randint(10, 15)

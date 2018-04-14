@@ -12,6 +12,8 @@ class network():
         self.input_channel = args.input_channel
         self.out_class = args.out_class
         
+        self.beta = 0.01
+
         self.build_model()
 
         #summary
@@ -38,15 +40,17 @@ class network():
 
         self.vars = tf.trainable_variables()
 
-        self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.pred_logits, labels=train_labels))
+        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.pred_logits, labels=train_labels))
+        penalty = 0
+        for var in self.vars:
+            penalty += tf.nn.l2_loss(var)
+        
+        self.loss = loss + self.beta*penalty
 
         self.pred = tf.argmax(self.end_points, axis=1)
         gt = tf.argmax(train_labels, axis=1)
         correct_prediction = tf.equal(self.pred, gt)
         self.acc = tf.reduce_mean(tf.cast(correct_prediction, dtype=tf.float32))
-
-        #self.acc = tf.Print(self.acc, [gt], message="\ngt:", summarize=10)
-        #self.acc = tf.Print(self.acc, [self.pred], message="\npred:", summarize=10)
 
         #Validation Result
         val_logits, val_points = self.AlexNet(self.val_imgs, name="AlexNet", reuse=True)
