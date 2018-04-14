@@ -72,6 +72,7 @@ def load_image(path, args, is_training=True):
 			image = np.flip(image, 1)
 		elif prob > 0.5 and aug == 2:
 			image = scipy.ndimage.interpolation.rotate(image, 30)
+			image = scipy.misc.imresize(image, (args.input_width, args.input_height))
 		elif prob > 0.5 and aug == 3:
 			image = scipy.ndimage.interpolation.zoom(image, (1.5,1.5,1.0))
 			image = scipy.misc.imresize(image, (args.input_width, args.input_height))
