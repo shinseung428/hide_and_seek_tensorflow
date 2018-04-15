@@ -72,6 +72,7 @@ def train(args, sess, model):
 
     print("Training Count: %d Class Num: %d "%(train_count, train_labels.max()+1))
     
+
     batch_idxs = train_count // args.batch_size
     #training starts here
     for epoch in range(start_epoch, args.epochs):
@@ -87,7 +88,7 @@ def train(args, sess, model):
 
             tr_batch = []
 
-            tr_batch = [load_image(path, args, is_training=True) for path in tr_img_batch]
+            tr_batch = [load_image(path, args, is_training=False) for path in tr_img_batch]
             val_batch = [load_image(path, args, is_training=False) for path in val_img_batch]
             tr_batch = np.asarray(tr_batch)
             val_batch = np.asarray(val_batch)
