@@ -13,8 +13,8 @@ def str2bool(v):
 parser = argparse.ArgumentParser(description='')
 
 #Image setting
-parser.add_argument('--input_width', dest='input_width', default=64, help='input image width')
-parser.add_argument('--input_height', dest='input_height', default=64, help='input image height')
+parser.add_argument('--input_width', dest='input_width', default=100, help='input image width')
+parser.add_argument('--input_height', dest='input_height', default=100, help='input image height')
 parser.add_argument('--input_channel', dest='input_channel', default=3, help='input image channel')
 parser.add_argument('--out_class', dest='out_class', default=200, help='number of classes')
 
@@ -24,7 +24,7 @@ parser.add_argument('--continue_training', dest='continue_training', default=Fal
 parser.add_argument('--data', dest='data', default='./data', help='cats image train path')
 
 parser.add_argument('--epochs', dest='epochs', default=500, help='total number of epochs')
-parser.add_argument('--batch_size', dest='batch_size', default=128, help='batch size')
+parser.add_argument('--batch_size', dest='batch_size', default=64, help='batch size')
 parser.add_argument('--checkout_point', dest='checkout_point', default=300, help='checkout point')
 
 parser.add_argument('--learning_rate', dest='learning_rate', default=0.01, help='learning rate of the optimizer')
