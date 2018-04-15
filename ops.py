@@ -64,16 +64,20 @@ def load_image(path, args, is_training=True):
 	
 	
 	if is_training:
-		#probably add data augmentation before randomly blocking image patches
-		aug = np.random.choice([1,2,3], 1)[0]
-		prob = np.random.rand()
-		if prob > 0.5 and aug == 1:
+		#probably add data augmentation before randomly blocking image patches		
+		if np.random.rand() > 0.5:
 			image = np.flip(image, 1)
-		elif prob > 0.5 and aug == 2:
+		if np.random.rand() > 0.5:
 			image = scipy.ndimage.interpolation.rotate(image, np.random.randint(-15,15))
 			image = scipy.misc.imresize(image, (args.input_width, args.input_height))
-		elif prob > 0.5 and aug == 3:
+		if np.random.rand() > 0.5:
 			image = scipy.ndimage.interpolation.zoom(image, (1.5,1.5,1.0))
+			image = scipy.misc.imresize(image, (args.input_width, args.input_height))
+		if np.random.rand() > 0.5:
+			size = 56
+			startx = np.random.randint(0,args.input_width-size)
+			starty = np.random.randint(0,args.input_height-size)
+			new_img = image[startx:startx+size, starty:starty+size, :]
 			image = scipy.misc.imresize(image, (args.input_width, args.input_height))
 
 		image = image / 255.0
