@@ -17,7 +17,7 @@ def step_decay(epoch):
 def train(args, sess, model):
     #optimizers
     # optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer").minimize(model.loss, var_list=model.vars)
-    optimizer = tf.train.MomentumOptimizer(args.learning_rate, 0.9, use_nesterov=True)
+    optimizer = tf.train.MomentumOptimizer(args.learning_rate, 0.9, use_nesterov=True).minimize(model.loss, var_list=model.vars)
     
     start_epoch = 0
     step = 0
