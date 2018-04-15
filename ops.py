@@ -74,7 +74,7 @@ def load_image(path, args, is_training=True):
 			image = scipy.ndimage.interpolation.zoom(image, (1.5,1.5,1.0))
 			image = scipy.misc.imresize(image, (args.input_width, args.input_height))
 		if np.random.rand() > 0.5:
-			size = 90
+			size = 55
 			startx = np.random.randint(0,args.input_width-size)
 			starty = np.random.randint(0,args.input_height-size)
 			new_img = image[startx:startx+size, starty:starty+size, :]
