@@ -12,7 +12,8 @@ class network():
         self.input_channel = args.input_channel
         self.out_class = args.out_class
         
-        self.beta = 0.0001
+        self.reg_val = args.reg_val
+
 
         self.build_model()
 
@@ -45,7 +46,7 @@ class network():
         for var in self.vars:
             penalty += tf.nn.l2_loss(var)
         
-        self.loss = tf.reduce_mean(loss + self.beta*penalty)
+        self.loss = tf.reduce_mean(loss + self.reg_val*penalty)
 
         self.pred = tf.argmax(self.end_points, axis=1)
         gt = tf.argmax(train_labels, axis=1)
@@ -188,7 +189,7 @@ class network():
         net = conv2d(net, 512, 1024, 3, 1, padding='SAME', name='conv10')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn10")
-        
+
         self.last_layer = net
         #Global Average Pooling
         gap = tf.reduce_mean(net, axis=[1,2])
