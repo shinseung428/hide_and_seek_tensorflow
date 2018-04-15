@@ -17,8 +17,16 @@ def step_decay(epoch):
 def train(args, sess, model):
     #optimizers
     # optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer").minimize(model.loss, var_list=model.vars)
-    optimizer = tf.train.MomentumOptimizer(args.learning_rate, 0.9, use_nesterov=True).minimize(model.loss, var_list=model.vars)
-    
+    batch = tf.Variable(0)
+    learning_rate = tf.train.exponential_decay(
+                                                0.01,                # Base learning rate.
+                                                batch * args.batch_size,  # Current index into the dataset.
+                                                100000,          # Decay step.
+                                                0.96,                # Decay rate.
+                                                staircase=True)    
+    optimizer = tf.train.MomentumOptimizer(learning_rate, 0.9, use_nesterov=True).minimize(model.loss, var_list=model.vars, global_step=batch)
+
+
     start_epoch = 0
     step = 0
     global_step = 0
