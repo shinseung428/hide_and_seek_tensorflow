@@ -140,7 +140,7 @@ class network():
     def VGG(self, input, name="VGG16", reuse=False):
       with tf.variable_scope(name, reuse=reuse) as scope:
         # block 1
-        net = conv2d(input, 3, 64, 11, 3, padding='SAME', name='conv1')
+        net = conv2d(input, 3, 64, 5, 2, padding='SAME', name='conv1')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn1")
         
@@ -188,7 +188,7 @@ class network():
         net = conv2d(net, 512, 1024, 3, 1, padding='SAME', name='conv10')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn10")
-
+        
         self.last_layer = net
         #Global Average Pooling
         gap = tf.reduce_mean(net, axis=[1,2])
