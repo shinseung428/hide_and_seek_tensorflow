@@ -83,7 +83,7 @@ def load_image(path, args, is_training=True):
 		image = image / 255.0
 		# use 13x13 grid
 		# grid = np.random.randint(10, 15)
-		grid = np.random.choice([8,13,16], 1)[0]
+		grid = np.random.choice([10,13,20], 1)[0]
 		breaks = args.input_width // grid + 1
 		for x in range(breaks):
 			for y in range(breaks):
@@ -122,10 +122,9 @@ def load_tr_data(args):
 			images.append(img_path)
 			boxes.append(box)
 			labels.append(idx)
-			#img = load_image(img_path, args)
-			#mean += np.sum(img)
+			# img = load_image(img_path, args)
+			# mean += np.sum(img)
 			
-	
 	# print 2176804927.67/(len(labels) * args.input_height * args.input_height * args.input_channel)
 	
 	return images, boxes, labels, labels_dict, len(labels)
