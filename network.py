@@ -82,7 +82,8 @@ class network():
 
         classmap = tf.matmul(CAM_img, label_w)
         classmap = tf.reshape(classmap, [-1, self.input_height, self.input_width, 1])
-        classmap = classmap > 0.2
+        class_mask = classmap > 0.2
+        classmap = tf.boolean_mask(classmap, class_mask)
 
         colorized = []
         for idx in range(self.batch_size):
