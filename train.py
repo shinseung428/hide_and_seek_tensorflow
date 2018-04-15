@@ -1,6 +1,16 @@
+import os
 import tensorflow as tf
 from config import *
 from network import *
+
+os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
+
+def step_decay(epoch):
+    initial_lrate = 0.01
+    drop = 0.4
+    epochs_drop = 10.0
+    lrate = initial_lrate * math.pow(drop, math.floor((1+epoch)/epochs_drop))
+    return lrate
 
 
 def train(args, sess, model):
@@ -113,7 +123,8 @@ def train(args, sess, model):
         
         saver.save(sess, args.checkpoints_path + "/model-"+str(epoch))
         print("Model saved at /model-" + str(epoch))
-            
+        
+        args.learning_rate = step_decay(epoch)
             
 
         #update learning rate after every epoch
