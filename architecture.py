@@ -26,19 +26,6 @@ def linear(input, output_size, name="linear"):
 		return tf.matmul(input, matrix) + bias, matrix
 
 
-def deconv2d(input, out_shape, name="deconv2d"):
-	input_shape = input.get_shape().as_list()
-	with tf.variable_scope(name) as scope:
-		w = tf.get_variable("w", [5, 5, out_shape[-1], input_shape[-1]], initializer=tf.random_normal_initializer(stddev=0.02))
-		b = tf.get_variable("b", [out_shape[-1]], initializer=tf.constant_initializer(0.0))
-		deconv = tf.nn.conv2d_transpose(input, w, 
-										output_shape=out_shape,
-										strides=[1, 2, 2, 1])
-		deconv = tf.reshape(tf.nn.bias_add(deconv, b), deconv.get_shape())
-
-		return deconv
-
-
 def conv2d(input, input_filters, output_filters, kernel, strides, padding = 'SAME', mode='CONSTANT', name='conv'):
     with tf.variable_scope(name) as scope:
         shape = [kernel, kernel, input_filters, output_filters]

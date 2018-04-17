@@ -115,15 +115,22 @@ def train(args, sess, model):
 
             if len(tr_img_batch) < args.batch_size or len(val_img_batch) < args.batch_size:
                 break
+
+            dictionary = {model.train_imgs:tr_batch,
+                          model.train_labels:tr_lab_batch,
+                          model.val_imgs:val_batch,
+                          model.val_labels:val_lab_batch
+                          }
             #Update Network
-            summary, loss, acc, val_acc, _ = sess.run([all_summary, model.loss, model.acc, model.val_acc, optimizer],
-                                                       feed_dict={model.train_imgs:tr_batch,
-                                                                  model.train_labels:tr_lab_batch,
-                                                                  model.val_imgs:val_batch,
-                                                                  model.val_labels:val_lab_batch
-                                                                  }
+            summary, loss, acc, val_acc, val_cam, _ = sess.run([all_summary, model.loss, model.acc, model.val_acc, model.val_colorized_classmap, optimizer],
+                                                       feed_dict=dictionary
                                                       )
             writer.add_summary(summary, global_step)
+
+
+            #calculate IOU and other stuff here
+            
+
 
 
 

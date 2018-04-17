@@ -11,36 +11,12 @@ import matplotlib.cm
 
 
 def colorize(value, vmin=None, vmax=None, cmap='plasma'):
-	"""
-	A utility function for TensorFlow that maps a grayscale image to a matplotlib
-	colormap for use with TensorBoard image summaries.
-	By default it will normalize the input value to the range 0..1 before mapping
-	to a grayscale colormap.
-	Arguments:
-	  - value: 2D Tensor of shape [height, width] or 3D Tensor of shape
-	    [height, width, 1].
-	  - vmin: the minimum value of the range used for normalization.
-	    (Default: value minimum)
-	  - vmax: the maximum value of the range used for normalization.
-	    (Default: value maximum)
-	  - cmap: a valid cmap named for use with matplotlib's `get_cmap`.
-	    (Default: 'gray')
-	Example usage:
-	```
-	output = tf.random_uniform(shape=[256, 256, 1])
-	output_color = colorize(output, vmin=0.0, vmax=1.0, cmap='viridis')
-	tf.summary.image('output', output_color)
-	```
-
-	Returns a 3D tensor of shape [height, width, 3].
-	"""
-
 	# normalize
 	vmin = tf.reduce_min(value) if vmin is None else vmin
 	vmax = tf.reduce_max(value) if vmax is None else vmax
 	value = (value - vmin) / (vmax - vmin) # vmin..vmax
 
-	# squeeze last dim if it exists
+	# squeeze last dim 
 	value = tf.squeeze(value)
 
 	# quantize
@@ -67,9 +43,9 @@ def load_image(path, args, is_training=True):
 		#probably add data augmentation before randomly blocking image patches		
 		if np.random.rand() > 0.5:
 			image = np.flip(image, 1)
-		if np.random.rand() > 0.5:
-			image = scipy.ndimage.interpolation.rotate(image, np.random.randint(-10,10))
-			image = scipy.misc.imresize(image, (args.input_width, args.input_height))
+		# if np.random.rand() > 0.5:
+		# 	image = scipy.ndimage.interpolation.rotate(image, np.random.randint(-10,10))
+		# 	image = scipy.misc.imresize(image, (args.input_width, args.input_height))
 		if np.random.rand() > 0.5:
 			image = scipy.ndimage.interpolation.zoom(image, (1.5,1.5,1.0))
 			image = scipy.misc.imresize(image, (args.input_width, args.input_height))
@@ -101,7 +77,6 @@ def load_tr_data(args):
 	folders = os.path.join(args.data, "train")
 	folders = glob(folders+"/*")
 	
-	# mean = 0
 	images = []
 	boxes = []
 	labels = []
@@ -122,10 +97,6 @@ def load_tr_data(args):
 			images.append(img_path)
 			boxes.append(box)
 			labels.append(idx)
-			# img = load_image(img_path, args)
-			# mean += np.sum(img)
-			
-	# print 2176804927.67/(len(labels) * args.input_height * args.input_height * args.input_channel)
 	
 	return images, boxes, labels, labels_dict, len(labels)
 
@@ -152,7 +123,7 @@ def load_val_data(args, labels_dict):
 		images.append(img_path)
 		boxes.append(box)
 		labels.append(labels_dict[line[1]])
-	
+
 	return images, boxes, labels, len(labels)
 
 
