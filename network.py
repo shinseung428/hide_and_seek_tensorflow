@@ -37,7 +37,7 @@ class network():
         self.val_labels = tf.placeholder(tf.int32, [self.batch_size,])
         val_labels = tf.one_hot(self.val_labels, self.out_class)
 
-        self.pred_logits, self.end_points = self.VGG(self.train_imgs, name="VGG")
+        self.pred_logits, self.end_points = self.AlexNet(self.train_imgs, name="AlexNet")
 
         self.vars = tf.trainable_variables()
 
@@ -54,7 +54,7 @@ class network():
         self.acc = tf.reduce_mean(tf.cast(correct_prediction, dtype=tf.float32))
 
         #Validation Result
-        val_logits, val_points = self.VGG(self.val_imgs, name="VGG", reuse=True)
+        val_logits, val_points = self.AlexNet(self.val_imgs, name="AlexNet", reuse=True)
         val_pred = tf.argmax(val_points, axis=1)
         val_gt = tf.argmax(val_labels, axis=1)
         val_prediction = tf.equal(val_pred, val_gt)
@@ -70,7 +70,7 @@ class network():
         classmap = tf.reshape(classmap, [-1, self.input_height, self.input_width, 1])
         class_mask = tf.cast(classmap > 0.2, dtype=tf.float32)
         classmap = classmap * class_mask
-                
+
         colorized = []
         for idx in range(self.batch_size):
             colorized.append(colorize(classmap[idx]))
@@ -120,7 +120,7 @@ class network():
         net = conv2d(net, 384, 256, 3, 1, padding='SAME', name='conv5')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn5")
-        net = max_pool(net, 3, 2, padding='VALID', name='pool3')
+        # net = max_pool(net, 3, 2, padding='VALID', name='pool3')
         
         #extra conv layers
         net = conv2d(net, 256, 512, 3, 1, padding='SAME', name='conv6')
@@ -129,14 +129,15 @@ class network():
         net = conv2d(net, 512, 1024, 3, 1, padding='SAME', name='conv7')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn7")
-        
+
         self.last_layer = net
         #Global Average Pooling
         gap = tf.reduce_mean(net, axis=[1,2])
         
         flattened = tf.reshape(gap, (self.batch_size, -1))
         net, self.weights = linear(flattened, self.out_class, name='linear')
-
+        net = tf.nn.dropout(net, 0.5, name='dropout')
+        
         return net, tf.nn.softmax(net)
 
 
