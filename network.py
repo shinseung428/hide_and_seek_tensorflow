@@ -107,29 +107,34 @@ class network():
         net = tf.nn.local_response_normalization(net, depth_radius=5.0, bias=2.0, alpha=1e-4, beta=0.75)
         net = max_pool(net, 3, 2, padding='VALID', name='pool1')
         
-        net = conv2d(net, 96, 256, 3, 1, padding='SAME', name='conv2')
+        net = conv2d(net, 96, 384, 3, 1, padding='SAME', name='conv2')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn2")
         net = tf.nn.local_response_normalization(net, depth_radius=5.0, bias=2.0, alpha=1e-4, beta=0.75)
         net = max_pool(net, 3, 2, padding='VALID', name='pool2')
         
-        net = conv2d(net, 256, 384, 3, 1, padding='SAME', name='conv3')
+        prev_layer = net
+        
+        net = conv2d(net, 384, 384, 3, 1, padding='SAME', name='conv3')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn3")
-
+        
         net = conv2d(net, 384, 384, 3, 1, padding='SAME', name='conv4')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn4")
+
+        net = prev_layer + net
 
         net = conv2d(net, 384, 256, 3, 1, padding='SAME', name='conv5')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn5")
         # net = max_pool(net, 3, 2, padding='VALID', name='pool3')
-        
+
         #extra conv layers
         net = conv2d(net, 256, 512, 3, 1, padding='SAME', name='conv6')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn6")
+
         net = conv2d(net, 512, 1024, 3, 1, padding='SAME', name='conv7')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn7")
