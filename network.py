@@ -19,8 +19,10 @@ class network():
 
         #summary
         self.loss_sum = tf.summary.scalar("loss", self.loss) 
-        self.tr_acc_sum = tf.summary.scalar("acc", self.acc) 
+        self.tr_acc_sum = tf.summary.scalar("tr_acc", self.acc) 
         self.val_acc_sum = tf.summary.scalar("val_acc", self.val_acc) 
+        self.val_acc5_sum = tf.summary.scalar("val_acc5", self.val_top5)
+
         self.train_img_sum = tf.summary.image("tr_img", self.train_imgs, max_outputs=5)
         self.val_img_sum = tf.summary.image("val_img", self.val_imgs, max_outputs=5)
 
@@ -60,6 +62,8 @@ class network():
         val_prediction = tf.equal(val_pred, val_gt)
         self.val_acc = tf.reduce_mean(tf.cast(val_prediction, dtype=tf.float32)) 
 
+        self.val_top5 = tf.reduce_mean(tf.cast(tf.nn.in_top_k(predictions=val_points, targets=val_gt, k=5), tf.float32))
+
         #Training Classmap
         CAM_image = tf.image.resize_bilinear(self.last_layer, [self.input_height, self.input_width])
         CAM_img = tf.reshape(CAM_image, [-1, self.input_height*self.input_width, 1024])
@@ -86,11 +90,11 @@ class network():
         classmap = tf.matmul(CAM_img, label_w)
         classmap = tf.reshape(classmap, [-1, self.input_height, self.input_width, 1])
         class_mask = tf.cast(classmap > 0.2, dtype=tf.float32)
-        classmap = classmap * class_mask
+        self.val_classmap = classmap * class_mask
 
         colorized = []
         for idx in range(self.batch_size):
-            colorized.append(colorize(classmap[idx]))
+            colorized.append(colorize(self.val_classmap[idx]))
 
         self.val_colorized_classmap = tf.convert_to_tensor(colorized)        
 

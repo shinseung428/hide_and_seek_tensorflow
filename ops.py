@@ -1,13 +1,68 @@
 
-from glob import glob 
 import os
 import tensorflow as tf
 import numpy as np
+
 import scipy.misc
 import scipy.ndimage
 
+from skimage.measure import label, regionprops
+from skimage.morphology import closing, square
+
 import matplotlib
 import matplotlib.cm
+
+from glob import glob 
+
+def find_overlap(box1, box2):
+	x_left = max(box1[0], box2[0])
+	y_top = max(box1[1], box2[1])
+	x_right = min(box1[0] + box1[2], box2[0] + box2[2])
+	y_bottom = min(box1[1] + box1[3], box2[1] + box2[3])
+
+	return (x_left, y_top, x_right-x_left, y_bottom-y_top)
+
+def box_size(box):
+	return (box[2] + 1) * (box[3] + 1)
+
+def calc_loc(pred_box, gt_box):
+	total = 0.0
+	for idx in range(len(pred_box)):		
+		# px, py, pw, ph = pred_box[idx]
+		# gx, gy, gw, gh = gt_box[idx]
+	
+		#calculate iou
+		overlap_box = find_overlap(pred_box[idx], gt_box[idx])
+		overlap_area = box_size(overlap_box)
+		pred_box_area = box_size(pred_box[idx])
+		gt_box_area = box_size(gt_box[idx])
+
+		total_area = float(overlap_area)/(pred_box_area + gt_box_area - overlap_area)
+		
+		total += total_area
+
+	return total/len(pred_box)
+
+def find_largest_box(heatmap):
+	res = []
+	for idx in range(len(heatmap)):
+		mask = heatmap[idx] > 0
+		masked = label(mask)
+
+		largest_area = 0
+		box = []
+		for region in regionprops(masked):
+			if region.area > largest_area:
+				largest_area = region.area
+				minr, minc, maxr, maxc = region.bbox
+				box = (minc, minr, maxc - minc, maxr-minr)
+		
+		if largest_area == 0:
+			res.append((0,0,0,0))
+		else:
+			res.append(box)
+
+	return res
 
 
 def colorize(value, vmin=None, vmax=None, cmap='plasma'):
@@ -92,6 +147,12 @@ def load_tr_data(args):
 			line = line.split('\t')
 			name = line[0]
 			box = line[1:]
+			
+			int_box = []
+			for b in box:
+				int_box.append(int(b))
+			box = int_box
+
 			img_path = os.path.join(folder+"/images", name)
 			
 			images.append(img_path)
@@ -117,7 +178,11 @@ def load_val_data(args, labels_dict):
 	for line in data:
 		line = line.split('\t')
 		name = line[0]
-		box = line[1:]
+		box = line[2:]
+		int_box = []
+		for b in box:
+			int_box.append(int(b))
+		box = int_box
 		img_path = os.path.join(path+"/images", name)
 
 		images.append(img_path)

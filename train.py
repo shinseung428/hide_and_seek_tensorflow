@@ -16,7 +16,6 @@ def step_decay(epoch):
 
 def train(args, sess, model):
     #optimizers
-    # optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer").minimize(model.loss, var_list=model.vars)
     batch = tf.Variable(0)
     learning_rate = tf.train.exponential_decay(
                                                 0.01,                # Base learning rate.
@@ -24,7 +23,8 @@ def train(args, sess, model):
                                                 100000,          # Decay step.
                                                 0.96,                # Decay rate.
                                                 staircase=True)    
-    optimizer = tf.train.MomentumOptimizer(learning_rate, 0.9, use_nesterov=True).minimize(model.loss, var_list=model.vars, global_step=batch)
+    # optimizer = tf.train.MomentumOptimizer(learning_rate, 0.9, use_nesterov=True).minimize(model.loss, var_list=model.vars, global_step=batch)
+    optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer").minimize(model.loss, var_list=model.vars, global_step=batch)
 
 
     start_epoch = 0
@@ -51,6 +51,7 @@ def train(args, sess, model):
     all_summary = tf.summary.merge([model.loss_sum,
                                     model.tr_acc_sum, 
                                     model.val_acc_sum,
+                                    model.val_acc5_sum,
                                     model.train_img_sum,
                                     model.tr_classmap_sum,
                                     model.val_img_sum,
@@ -122,19 +123,24 @@ def train(args, sess, model):
                           model.val_labels:val_lab_batch
                           }
             #Update Network
-            summary, loss, acc, val_acc, val_cam, _ = sess.run([all_summary, model.loss, model.acc, model.val_acc, model.val_colorized_classmap, optimizer],
+            summary, loss, acc, val_acc, val_top5, val_cam, _ = sess.run([all_summary, 
+                                                                          model.loss, 
+                                                                          model.acc, 
+                                                                          model.val_acc,
+                                                                          model.val_top5, 
+                                                                          model.val_classmap, 
+                                                                          optimizer],
                                                        feed_dict=dictionary
                                                       )
             writer.add_summary(summary, global_step)
 
 
             #calculate IOU and other stuff here
-            
+            pred_val_boxes = find_largest_box(val_cam)
+            loc_acc = calc_loc(val_box_batch, pred_val_boxes)
 
 
-
-
-            print("Epoch [%d] Step [%d] Loss: [%.4f] Acc: [%.4f] Val: [%.4f]" % (epoch, idx, loss, acc, val_acc))
+            print("Epoch [%d] Step [%d] Loss: [%.4f] Acc: [%.4f] \nVal(top-1): [%.4f] Val(top-5): [%.4f] loc_acc: [%.4f]" % (epoch, idx, loss, acc, val_acc, val_top5, loc_acc))
             global_step += 1
                 
         
