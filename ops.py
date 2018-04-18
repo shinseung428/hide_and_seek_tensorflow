@@ -15,6 +15,14 @@ import matplotlib.cm
 from glob import glob 
 
 def find_overlap(box1, box2):
+	#check if one rect is on the left of the other
+	if box1[0] > box2[0] + box2[2] or box2[0] > box1[0] + box1[2]:
+		return (0,0,0,0)
+	#check if one rect is above the other
+	if box1[1] > box2[1] + box2[3] or box2[1] > box1[1] + box1[3]:
+		return (0,0,0,0)
+
+
 	x_left = max(box1[0], box2[0])
 	y_top = max(box1[1], box2[1])
 	x_right = min(box1[0] + box1[2], box2[0] + box2[2])
