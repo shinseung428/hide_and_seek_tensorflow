@@ -39,7 +39,7 @@ class network():
         self.val_labels = tf.placeholder(tf.int32, [self.batch_size,])
         val_labels = tf.one_hot(self.val_labels, self.out_class)
 
-        self.pred_logits, self.end_points = self.AlexNet(self.train_imgs, name="AlexNet")
+        self.pred_logits, self.end_points = self.VGG(self.train_imgs, name="VGG")
 
         self.vars = tf.trainable_variables()
 
@@ -56,7 +56,7 @@ class network():
         self.acc = tf.reduce_mean(tf.cast(correct_prediction, dtype=tf.float32))
 
         #Validation Result
-        val_logits, val_points = self.AlexNet(self.val_imgs, name="AlexNet", reuse=True)
+        val_logits, val_points = self.VGG(self.val_imgs, name="VGG", reuse=True)
         val_pred = tf.argmax(val_points, axis=1)
         val_gt = tf.argmax(val_labels, axis=1)
         val_prediction = tf.equal(val_pred, val_gt)
@@ -107,23 +107,19 @@ class network():
         net = tf.nn.local_response_normalization(net, depth_radius=5.0, bias=2.0, alpha=1e-4, beta=0.75)
         net = max_pool(net, 3, 2, padding='VALID', name='pool1')
         
-        net = conv2d(net, 96, 384, 3, 1, padding='SAME', name='conv2')
+        net = conv2d(net, 96, 256, 3, 1, padding='SAME', name='conv2')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn2")
         net = tf.nn.local_response_normalization(net, depth_radius=5.0, bias=2.0, alpha=1e-4, beta=0.75)
         net = max_pool(net, 3, 2, padding='VALID', name='pool2')
         
-        prev_layer = net
-        
-        net = conv2d(net, 384, 384, 3, 1, padding='SAME', name='conv3')
+        net = conv2d(net, 256, 384, 3, 1, padding='SAME', name='conv3')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn3")
         
         net = conv2d(net, 384, 384, 3, 1, padding='SAME', name='conv4')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn4")
-
-        net = prev_layer + net
 
         net = conv2d(net, 384, 256, 3, 1, padding='SAME', name='conv5')
         net = tf.nn.relu(net)
@@ -168,14 +164,15 @@ class network():
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn3")
 
-        net = conv2d(net, 128, 128, 3, 1, padding='SAME', name='conv4')
+        net = conv2d(net, 128, 256, 3, 1, padding='SAME', name='conv4')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn4")
 
         net = max_pool(net, 2, 2, padding='VALID', name='pool2')
 
+        prev_net = net
         # block 3
-        net = conv2d(net, 128, 256, 3, 1, padding='SAME', name='conv5')
+        net = conv2d(net, 256, 256, 3, 1, padding='SAME', name='conv5')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn5")
         
@@ -183,18 +180,23 @@ class network():
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn6")
 
+        net = prev_net + net
+        prev_net = net
+
         net = conv2d(net, 256, 256, 3, 1, padding='SAME', name='conv7')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn7")
 
-        net = max_pool(net, 2, 2, padding='VALID', name='pool3')
+        # net = max_pool(net, 2, 2, padding='VALID', name='pool3')
 
         # block 4
-        net = conv2d(net, 256, 512, 3, 1, padding='SAME', name='conv8')
+        net = conv2d(net, 256, 256, 3, 1, padding='SAME', name='conv8')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn8")
         
-        net = conv2d(net, 512, 512, 3, 1, padding='SAME', name='conv9')
+        net = prev_net + net
+
+        net = conv2d(net, 256, 512, 3, 1, padding='SAME', name='conv9')
         net = tf.nn.relu(net)
         net = batch_norm(net, name="bn9")
 
@@ -203,6 +205,7 @@ class network():
         net = batch_norm(net, name="bn10")
 
         self.last_layer = net
+
         #Global Average Pooling
         gap = tf.reduce_mean(net, axis=[1,2])
         
