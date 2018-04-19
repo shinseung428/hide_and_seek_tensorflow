@@ -205,8 +205,7 @@ class network():
         net = batch_norm(net, name="bn10")
 
         self.last_layer = net
-        print net
-        input('t')
+
         #Global Average Pooling
         gap = tf.reduce_mean(net, axis=[1,2])
         

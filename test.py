@@ -25,6 +25,7 @@ def validate(args, sess, model):
 
     #Prepare data
     #prepare training data
+    _, _, _, labels_dict, _ = load_tr_data(args) 
     valid_imgs, valid_boxes, valid_labels, valid_count = load_val_data(args, labels_dict)    
 
     zipped_data = zip(valid_imgs, valid_boxes, valid_labels)
@@ -99,7 +100,7 @@ def main(_):
     with tf.Session(config=run_config) as sess:
         model = network(args)
 
-        print('Start Training...')
+        print('Process Validation Data...')
         validate(args, sess, model)
 
 main(args)
