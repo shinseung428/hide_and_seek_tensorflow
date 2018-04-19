@@ -3,6 +3,7 @@ import math
 import tensorflow as tf
 from config import *
 from network import *
+from tqdm import tqdm
 
 os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
 
@@ -142,13 +143,14 @@ def train(args, sess, model):
         saver.save(sess, args.checkpoints_path + "/model-"+str(epoch))
         print("Model saved at /model-" + str(epoch))
 
+        print "Processing Validation Data..."
         #calculate total validation result
         ave_top_1 = 0.0
         ave_top_5 = 0.0 
         ave_IOU = 0.0
         last_idx = 0
         batch_idxs = valid_count // args.batch_size
-        for idx in range(0, batch_idxs):
+        for idx in tqdm(range(0, batch_idxs)):
             val_img_batch = valid_imgs[args.batch_size*idx:args.batch_size*idx+args.batch_size]
             val_lab_batch = valid_labels[args.batch_size*idx:args.batch_size*idx+args.batch_size]
             val_box_batch = valid_boxes[args.batch_size*idx:args.batch_size*idx+args.batch_size]
@@ -184,7 +186,8 @@ def train(args, sess, model):
 
             last_idx = idx
         
-        print "val_Acc_1: [%.4f] val_Acc_5: [%.4f] IOU_Acc: [%.4f]"%(ave_top_1/(last_idx*args.batch_size), ave_top_5/(last_idx*args.batch_size), ave_IOU/(last_idx*args.batch_size))
+
+        print "Val_Acc_1: [%.4f] Val_Acc_5: [%.4f] IOU_Acc: [%.4f]"%(ave_top_1/(last_idx*args.batch_size), ave_top_5/(last_idx*args.batch_size), ave_IOU/(last_idx*args.batch_size))
 
         
         
