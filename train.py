@@ -211,5 +211,3 @@ def main(_):
         train(args, sess, model)
 
 main(args)
-
-#Still Working....

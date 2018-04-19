@@ -25,12 +25,10 @@ parser.add_argument('--data', dest='data', default='./data', help='cats image tr
 
 parser.add_argument('--epochs', dest='epochs', default=55, help='total number of epochs')
 parser.add_argument('--batch_size', dest='batch_size', default=64, help='batch size')
-parser.add_argument('--checkout_point', dest='checkout_point', default=300, help='checkout point')
 
 parser.add_argument('--learning_rate', dest='learning_rate', default=0.01, help='learning rate of the optimizer')
 parser.add_argument('--momentum', dest='momentum', default=0.5, help='momentum of the optimizer')
 parser.add_argument('--reg_val', dest='reg_val', default=0.0005, help='regularization scaling value')
-
 
 #Extra folders setting
 parser.add_argument('--checkpoints_path', dest='checkpoints_path', default='./checkpoints/', help='saved model checkpoint path')
