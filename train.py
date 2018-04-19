@@ -149,8 +149,8 @@ def train(args, sess, model):
         ave_top_5 = 0.0 
         ave_IOU = 0.0
         last_idx = 0
-        batch_idxs = valid_count // args.batch_size
-        for idx in tqdm(range(0, batch_idxs)):
+        val_batch_idxs = valid_count // args.batch_size
+        for idx in tqdm(range(0, val_batch_idxs)):
             val_img_batch = valid_imgs[args.batch_size*idx:args.batch_size*idx+args.batch_size]
             val_lab_batch = valid_labels[args.batch_size*idx:args.batch_size*idx+args.batch_size]
             val_box_batch = valid_boxes[args.batch_size*idx:args.batch_size*idx+args.batch_size]
