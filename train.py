@@ -39,12 +39,12 @@ def train(args, sess, model):
         ckpt_name = str(last_ckpt)
         print("Loaded model file from " + ckpt_name)
         ckpt_numbers = ckpt_name.split('-')
-        start_epoch = int(ckpt_numbers[-2])
-        step = global_step = int(ckpt_numbers[-1])
-        tf.local_variables_initializer().run()
+        start_epoch = int(ckpt_numbers[-1])
+        global_step = start_epoch*100000
+        # tf.local_variables_initializer().run()
     else:
         tf.global_variables_initializer().run()
-        tf.local_variables_initializer().run()
+        # tf.local_variables_initializer().run()
 
 
     #summary init
