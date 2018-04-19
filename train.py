@@ -35,7 +35,7 @@ def train(args, sess, model):
         print("Loaded model file from " + ckpt_name)
         ckpt_numbers = ckpt_name.split('-')
         start_epoch = int(ckpt_numbers[-1])
-        global_step = start_epoch*100000
+        global_step = start_epoch*(100000//args.batch_size)
     else:
         tf.global_variables_initializer().run()
 
