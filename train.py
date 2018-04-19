@@ -114,7 +114,7 @@ def train(args, sess, model):
             tr_batch = np.asarray(tr_batch)
             val_batch = np.asarray(val_batch)
 
-            if len(tr_img_batch) < args.batch_size or len(val_img_batch) < args.batch_size:
+            if len(tr_img_batch) < args.batch_size:
                 break
 
             dictionary = {model.train_imgs:tr_batch,
