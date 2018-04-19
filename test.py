@@ -41,7 +41,6 @@ def validate(args, sess, model):
     valid_labels = np.asarray(new_labels)
     
 
-    print "Processing Validation Data..."
     #calculate total validation result
     ave_top_1 = 0.0
     ave_top_5 = 0.0 

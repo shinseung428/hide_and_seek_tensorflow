@@ -48,7 +48,8 @@ class network():
         for var in self.vars:
             penalty += tf.nn.l2_loss(var)
         
-        self.loss = tf.reduce_mean(loss + self.reg_val*penalty)
+        #uncomment to use regularizer
+        self.loss = loss#tf.reduce_mean(loss + self.reg_val*penalty)
 
         self.pred = tf.argmax(self.end_points, axis=1)
         gt = tf.argmax(train_labels, axis=1)
