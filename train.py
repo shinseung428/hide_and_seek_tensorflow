@@ -187,7 +187,7 @@ def train(args, sess, model):
             last_idx = idx
         
 
-        print "Val_Acc_1: [%.4f] Val_Acc_5: [%.4f] IOU_Acc: [%.4f]"%(ave_top_1/(last_idx*args.batch_size), ave_top_5/(last_idx*args.batch_size), ave_IOU/(last_idx*args.batch_size))
+        print "Val_Acc_1: [%.4f] Val_Acc_5: [%.4f] IOU_Acc: [%.4f]"%(ave_top_1/last_idx, ave_top_5/last_idx, ave_IOU/last_idx)
 
         
         
