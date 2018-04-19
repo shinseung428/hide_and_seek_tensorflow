@@ -6,12 +6,6 @@ from network import *
 
 os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
 
-def step_decay(epoch):
-    initial_lrate = 0.01
-    drop = 0.4
-    epochs_drop = 10.0
-    lrate = initial_lrate * math.pow(drop, math.floor((1+epoch)/epochs_drop))
-    return lrate
 
 
 def train(args, sess, model):
@@ -41,10 +35,9 @@ def train(args, sess, model):
         ckpt_numbers = ckpt_name.split('-')
         start_epoch = int(ckpt_numbers[-1])
         global_step = start_epoch*100000
-        # tf.local_variables_initializer().run()
     else:
         tf.global_variables_initializer().run()
-        # tf.local_variables_initializer().run()
+
 
 
     #summary init
@@ -102,12 +95,14 @@ def train(args, sess, model):
             tr_lab_batch = train_labels[args.batch_size*idx:args.batch_size*idx+args.batch_size]
             tr_box_batch = train_boxes[args.batch_size*idx:args.batch_size*idx+args.batch_size]
 
-            val_img_batch = valid_imgs[args.batch_size*idx:args.batch_size*idx+args.batch_size]
-            val_lab_batch = valid_labels[args.batch_size*idx:args.batch_size*idx+args.batch_size]
-            val_box_batch = valid_boxes[args.batch_size*idx:args.batch_size*idx+args.batch_size]
 
+            #sample random batch of validation data
+            val_idx = valid_count // args.batch_size
+            valid_index = np.random.choice(range(val_idx), 1)[0]
+            val_img_batch = valid_imgs[args.batch_size*valid_index:args.batch_size*valid_index+args.batch_size]
+            val_lab_batch = valid_labels[args.batch_size*valid_index:args.batch_size*valid_index+args.batch_size]
+            val_box_batch = valid_boxes[args.batch_size*valid_index:args.batch_size*valid_index+args.batch_size]
 
-            tr_batch = []
 
             tr_batch = [load_image(path, args, is_training=True) for path in tr_img_batch]
             val_batch = [load_image(path, args, is_training=False) for path in val_img_batch]
@@ -130,27 +125,72 @@ def train(args, sess, model):
                                                                           model.val_top5, 
                                                                           model.val_classmap, 
                                                                           optimizer],
-                                                       feed_dict=dictionary
-                                                      )
+                                                                        feed_dict=dictionary
+                                                                        )
             writer.add_summary(summary, global_step)
 
 
             #calculate IOU and other stuff here
             pred_val_boxes = find_largest_box(val_cam)
-            loc_acc = calc_loc(val_box_batch, pred_val_boxes)
+            IOU_acc = calc_loc(val_box_batch, pred_val_boxes)
 
 
-            print("Epoch [%d] Step [%d] Loss: [%.4f] Acc: [%.4f] \nVal(top-1): [%.4f] Val(top-5): [%.4f] loc_acc: [%.4f]" % (epoch, idx, loss, acc, val_acc, val_top5, loc_acc))
+            print("Epoch [%d] Step [%d] Loss: [%.4f] Acc: [%.4f] \nVal(top-1): [%.4f] Val(top-5): [%.4f] IOU_acc: [%.4f]" % (epoch, idx, loss, acc, val_acc, val_top5, IOU_acc))
             global_step += 1
                 
         
         saver.save(sess, args.checkpoints_path + "/model-"+str(epoch))
         print("Model saved at /model-" + str(epoch))
+
+        #calculate total validation result
+        ave_top_1 = 0.0
+        ave_top_5 = 0.0 
+        ave_IOU = 0.0
+        last_idx = 0
+        batch_idxs = valid_count // args.batch_size
+        for idx in range(0, batch_idxs):
+            val_img_batch = valid_imgs[args.batch_size*idx:args.batch_size*idx+args.batch_size]
+            val_lab_batch = valid_labels[args.batch_size*idx:args.batch_size*idx+args.batch_size]
+            val_box_batch = valid_boxes[args.batch_size*idx:args.batch_size*idx+args.batch_size]
+
+            val_batch = [load_image(path, args, is_training=False) for path in val_img_batch]
+            val_batch = np.asarray(val_batch)
+
+            #skip if insufficient elements
+            if len(val_img_batch) < args.batch_size:
+                break
+
+            dictionary = {
+                          model.val_imgs:val_batch,
+                          model.val_labels:val_lab_batch
+                          }
+            #Update Network
+            val_acc, val_top5, val_cam = sess.run([model.val_acc,
+                                                   model.val_top5, 
+                                                   model.val_classmap, 
+                                                  ],
+                                                  feed_dict=dictionary
+                                                 )
+
+
+
+            #calculate IOU and other stuff here
+            pred_val_boxes = find_largest_box(val_cam)
+            IOU_acc = calc_loc(val_box_batch, pred_val_boxes)
+
+            ave_top_1 += val_acc
+            ave_top_5 += val_top5
+            ave_IOU += IOU_acc
+
+            last_idx = idx
         
-        args.learning_rate = step_decay(epoch)
+        print "val_Acc_1: [%.4f] val_Acc_5: [%.4f] IOU_Acc: [%.4f]"%(ave_top_1/(last_idx*args.batch_size), ave_top_5/(last_idx*args.batch_size), ave_IOU/(last_idx*args.batch_size))
+
+        
+        
             
 
-        #update learning rate after every epoch
+        
 
 
       
