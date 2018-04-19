@@ -9,7 +9,6 @@ import scipy.ndimage
 from skimage.measure import label, regionprops
 from skimage.morphology import closing, square
 
-import matplotlib
 import matplotlib.cm
 
 from glob import glob 
@@ -106,9 +105,9 @@ def load_image(path, args, is_training=True):
 		#probably add data augmentation before randomly blocking image patches		
 		if np.random.rand() > 0.5:
 			image = np.flip(image, 1)
-		# if np.random.rand() > 0.5:
-		# 	image = scipy.ndimage.interpolation.rotate(image, np.random.randint(-10,10))
-		# 	image = scipy.misc.imresize(image, (args.input_width, args.input_height))
+		if np.random.rand() > 0.5:
+			image = scipy.ndimage.interpolation.rotate(image, np.random.randint(-10,10))
+			image = scipy.misc.imresize(image, (args.input_width, args.input_height))
 		if np.random.rand() > 0.5:
 			size = np.random.choice([50,56,60], 1)[0]
 			startx = np.random.randint(0,args.input_width-size)
